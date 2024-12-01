@@ -1,3 +1,4 @@
+#pylint: disable=missing-module-docstring
 import sys
 from collections import Counter
 
@@ -9,5 +10,5 @@ right_counts = Counter(right_nums)
 distances = [abs(x-y) for x,y in zip(sorted(left_nums), sorted(right_nums))]
 similarity = [x * right_counts[x] for x in left_nums]
 
-print (f'Part 1: {sum(distances)  = } ')
-print (f'Part 2: {sum(similarity) = } ')
+print (f'Part 1: {sum(distances)  = }')
+print (f'Part 2: {sum(similarity) = }')
