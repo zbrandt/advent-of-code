@@ -1,14 +1,35 @@
-#pylint: disable=missing-module-docstring
+#pylint: disable=missing-module-docstring, missing-function-docstring
 import sys
 from collections import Counter
+import numpy as np
 
-all_nums = list(map(int,sys.stdin.read().split()))
-left_nums  = all_nums[0::2]
-right_nums = all_nums[1::2]
-right_counts = Counter(right_nums)
+def main(src_file):
+    # Read all numbers
+    all_nums = np.fromstring(src_file.read(), dtype=int, sep=' ')
 
-distances = [abs(x-y) for x,y in zip(sorted(left_nums), sorted(right_nums))]
-similarity = [x * right_counts[x] for x in left_nums]
+    # Split the numbers into left and right lists
+    left_nums = all_nums[0::2]
+    right_nums = all_nums[1::2]
 
-print (f'Part 1: {sum(distances)  = }')
-print (f'Part 2: {sum(similarity) = }')
+    # Use Counter to count occurrences in the right list
+    right_counts = Counter(right_nums)
+
+    # Calculate distances between sorted lists
+    distances = np.abs(np.sort(left_nums) - np.sort(right_nums))
+
+    # Calculate similarity score using numpy arrays
+    right_counts_array = np.array([right_counts[x] for x in left_nums])
+    similarity = left_nums * right_counts_array
+
+    # Output results
+    print(f'Part 1: total_distance = {np.sum(distances)}')
+    print(f'Part 2: similarity_score = {np.sum(similarity)}')
+
+if __name__ == "__main__":
+    file = sys.stdin
+    if len(sys.argv) > 1:
+        # Read from the provided file
+        with open(sys.argv[1], mode='r', encoding="utf-8") as file:
+            main(file)
+    else:
+        main(sys.stdin)
