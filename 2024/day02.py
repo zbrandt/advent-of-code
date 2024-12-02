@@ -4,7 +4,10 @@
 import sys
 from rich import print
 
-def ordinal(n: int):
+def pp(levels, red = -1) -> str:
+    return ' '.join([(f'{int(x)}', f'[bold bright_red]{x}[/]')[j == red] for j,x in enumerate(levels)])
+
+def ordinal(n: int) -> str:
     if 11 <= (n % 100) <= 13:
         suffix = 'th'
     else:
@@ -12,44 +15,29 @@ def ordinal(n: int):
     return str(n) + suffix
 
 def safe(level) -> bool:
-    prev = level[0]
-    slope = level[1] - level[0] > 0
-    for i, x in enumerate(level[1:]):
-        if slope != ((x - prev) > 0):
-            return False
-        diff = abs(x - prev)
-        if diff < 1 or diff > 3:
-            return False
-        prev = x
-    return True
+    increasing = all(1 <= level[i + 1] - level[i] <= 3 for i in range(len(level) - 1))
+    decreasing = all(1 <= level[i] - level[i + 1] <= 3 for i in range(len(level) - 1))
+    return increasing or decreasing
 
-def tolerant(level):
-    level_str = ' '.join(map(str, level))
+def dampener(level):
     if safe(level):
-        print (f'{level_str}: [bold bright_green]Safe[/] without removing any level')
+        print (f'{pp(level)}: [bold bright_green]Safe[/] without removing any level')
         return True
-    else:   
-        any_safe = False
-        for i,_ in enumerate(level):
-            level1 = level[:i] + level[i+1:]
-            is_safe = safe(level1)
-            any_safe |= is_safe
-            if is_safe:
-                level_str = ' '.join([(f'{int(x)}', f'[bold bright_red]{x}[/]')[i==j] for j,x in enumerate(level)])
-                print (f'{level_str}: [bold bright_green]Safe[/] by removing the {ordinal(i+1)} level, [bold bright_red]{level[i]}[/].')
-                break
-        if not any_safe:
-            print (f'{level_str}: [bold bright_red]Unsafe[/] regardless of which level is removed.')
-        return any_safe
+    for i,_ in enumerate(level):
+        if safe(level[:i] + level[i+1:]):
+            print (f'{pp(level, i)}: [bold bright_green]Safe[/] by removing the {ordinal(i+1)} level, [bold bright_red]{level[i]}[/].')
+            return True
+    print (f'{pp(level)}: [bold bright_red]Unsafe[/] regardless of which level is removed.')
+    return False
 
 def main(fname):
 
     levels = [list(map(int, x.split())) for x in fname.read().strip().split('\n')]
         
     safety0 = list(map(safe, levels))
-    safety1 = list(map(tolerant, levels))
-    print (f'Part 1: {sum(safety0)}')
-    print (f'Part 2: {sum(safety1)}')
+    safety1 = list(map(dampener, levels))
+    print (f'Part One: {sum(safety0)} safe reports')
+    print (f'Part Two: {sum(safety1)} safe reports with dampener')
 
 if __name__ == "__main__":
     arg = sys.stdin
