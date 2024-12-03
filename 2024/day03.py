@@ -1,26 +1,18 @@
 import sys, re
 from operator import mul
 
-def mulstr(s) -> int:
-    return mul(*map(int,re.match(r'mul\((\d+)\,(\d+)\)', s).groups()))
-
-def main(arg):
-    x = arg.read().strip()
-
-    sum_mul = sum(mulstr(m) for m in re.findall(r'mul\(\d+\,\d+\)', x))
-    print (f'Part 1: {sum_mul}')
-
+def main(farg):    
     enabled = True
-    sum_mul = 0
-    dd_matches=re.findall(r"mul\(\d+\,\d+\)|do\(\)|don't\(\)", x)
-    for m in dd_matches:
-        if m == "do()":
-            enabled = True
-        elif m == "don't()":
-            enabled = False
-        elif enabled:
-            sum_mul += mulstr(m)
-    print (f'Part 2: {sum_mul}')
+    total1 = total2 = 0
+    for smul, sdo, sdont in re.findall(r"(mul\(\d+\,\d+\))|(do\(\))|(don't\(\))", farg.read()):
+        if sdo or sdont:
+            enabled = bool(sdo)
+        else:
+            x = eval(smul)
+            total1 += x
+            total2 += x * enabled
+    print (f'Part 1: {total1}')
+    print (f'Part 2: {total2}')
 
 if __name__ == "__main__":
     arg = sys.stdin
