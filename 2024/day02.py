@@ -3,6 +3,7 @@
 """
 import sys
 from rich import print
+from rich.console import Console
 
 def pp(levels, red = -1) -> str:
     return ' '.join([(f'{int(x)}', f'[bold bright_red]{x}[/]')[j == red] for j,x in enumerate(levels)])
@@ -32,10 +33,13 @@ def dampener(level):
 
 def main(fname):
 
+    console = Console(width=60)
+    console.rule("[bold red]Logging")
     levels = [list(map(int, x.split())) for x in fname.read().strip().split('\n')]
-        
+
     safety0 = list(map(safe, levels))
     safety1 = list(map(dampener, levels))
+    console.rule("[bold red]Results")
     print (f'Part One: {sum(safety0)} safe reports')
     print (f'Part Two: {sum(safety1)} safe reports with dampener')
 
