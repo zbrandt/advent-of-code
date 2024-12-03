@@ -14,4 +14,4 @@ def main(farg):
     print (f'Part 2: {total2}')
 
 if __name__ == "__main__":
-    arg = open(sys.argv[1]) if len(sys.argv) > 1 else sys.stdin
+    main(open(sys.argv[1]) if len(sys.argv) > 1 else sys.stdin)
