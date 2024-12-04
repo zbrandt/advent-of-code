@@ -1,11 +1,11 @@
 import sys, re
 
-def main(farg):
+def main(fname):
     enabled = True
     total1 = total2 = 0
-    for a, b, do, dont in re.findall(r"mul\((\d+)\,(\d+)\)|(do\(\))|(don't\(\))", farg.read()):
+    for a, b, do, dont in re.findall(r"mul\((\d+)\,(\d+)\)|(do\(\))|(don't\(\))", fname.read()):
         if do or dont:
-            enabled = not sdont
+            enabled = not dont
         else:
             x = int(a) * int(b)
             total1 += x
@@ -15,4 +15,3 @@ def main(farg):
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
-    
