@@ -5,7 +5,7 @@ from collections import defaultdict
 dirs = list(product([-1, 0, 1], repeat=2))
 
 grid = None
-def main2(fname):
+def main(fname):
     target = list('XMAS')
     data = fname.read().strip()
     ddgrid = defaultdict(str,{(i,j): cell for i,row in enumerate(data.split()) for j,cell in enumerate(list(row)) })
@@ -19,4 +19,4 @@ def main2(fname):
     print(f'Part 2: {x_mas_count}')
 
 if __name__ == "__main__":
-    main2(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
+    main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
