@@ -13,9 +13,10 @@ def main2(fname):
     xmas_count = sum([[ddgrid[(k[0] + i*d[0],k[1] + i*d[1])] for i in range(len(target))] == target for d in dirs for k in list(ddgrid.keys())])
 
     m = re.findall(f'(?s)(?=(M|S).(M|S).{{{width}}}A.{{{width}}}(M|S).(M|S))', data)
+    x_mas_count = sum(x[0] != x[3] and x[1] != x[2] for x in m)
 
     print(f'Part 1: {xmas_count}')
-    print(f'Part 2: {sum(x[0] != x[3] and x[1] != x[2] for x in m)}')
+    print(f'Part 2: {x_mas_count}')
 
 if __name__ == "__main__":
     main2(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
