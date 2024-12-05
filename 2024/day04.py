@@ -1,3 +1,6 @@
+""" Module for Advent of Code Day 4.
+    https://adventofcode.com/2024/day/4
+"""
 import sys, re
 from itertools import product
 from collections import defaultdict
