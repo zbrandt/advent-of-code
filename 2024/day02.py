@@ -2,6 +2,7 @@
     https://adventofcode.com/2024/day/2
 """
 import sys
+# pylint: disable=redefined-builtin
 from rich import print
 from rich.console import Console
 
