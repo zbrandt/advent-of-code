@@ -2,11 +2,9 @@
     https://adventofcode.com/2024/day/6
 """
 import sys
-import copy
 
 class GuardGallivant:
     dirs = ((-1,0), (0,1), (1,0),(0,-1))
-    gc = ('^', '>', 'v', '<')
 
     def pp(self) -> None:
         print ('\n'.join([''.join(row) for row in self.grid]))
@@ -25,22 +23,22 @@ class GuardGallivant:
         self.grid = [list(row) for row in fname.read().strip().split()]
         self.start = self.find_start()
         self.dims = [len(self.grid), len(self.grid[0])]
-        self.save = copy.deepcopy(self.grid)
+        self.obstacles = []
+        self.xes = []
 
     def walk_grid(self):
-        gp = self.start
+        r,c = self.start
         dir = 0
-        while self.valid_pos(gp):
-            self.grid[gp[0]][gp[1]] = self.gc[dir]
-            #self.pp()
-            self.grid[gp[0]][gp[1]] = 'X'
+        while self.valid_pos([r,c]):
+            self.grid[r][c] = 'X'
+            self.xes.append((r,c))
             while True:
-                r,c = gp[0] + self.dirs[dir][0], gp[1] + self.dirs[dir][1]
-                if self.valid_pos([r,c]) and self.grid[r][c] == '#':
+                rx,cx = r + self.dirs[dir][0], c + self.dirs[dir][1]
+                if self.valid_pos([rx,cx]) and self.grid[rx][cx] == '#':
                     dir = (dir + 1) % 4
                     continue
                 break
-            gp = [r,c]
+            r,c = rx,cx
     
     def has_loop(self) -> bool:
         gp = self.start
@@ -59,32 +57,32 @@ class GuardGallivant:
                 break
             gp = [r,c]
         return False
-        
-    def x_count(self) -> int:
-        return sum(row.count('X') for row in self.grid)
 
-    def reset(self) -> None:
-        self.grid = copy.deepcopy(self.save)
-
-    def find_loops(self) -> int:
-        self.reset()
-        cnt = 0
+    def find_loops(self) -> None:
         for r in range(self.dims[0]):
             for c in range(self.dims[1]):
-                if self.grid[r][c] == '.':
+                ch = self.grid[r][c]
+                if ch == 'X':
                     self.grid[r][c] = 'O'
-                    cnt += int(self.has_loop())
+                    if self.has_loop():
+                        self.obstacles.append((r,c))
                     self.grid[r][c] = '.'
-        return cnt
+
+        for obstacle in self.obstacles:
+            self.grid[obstacle[0]][obstacle[1]] = 'O'
 
 def main(fname):
 
     gg = GuardGallivant(fname)
 
     gg.walk_grid()
+    print (f'Part 1: {len(gg.xes)}')
+    #gg.pp()
 
-    print (f'Part 1: {gg.x_count()}')
-    print (f'Part 2: {gg.find_loops()}')
+    gg.find_loops()
+    print (f'Part 2: {len(gg.obstacles)}')
+    #gg.pp()
+
     return
 
 if __name__ == "__main__":
