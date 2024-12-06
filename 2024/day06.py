@@ -68,7 +68,9 @@ class GuardGallivant:
                 self.obstacles.append((r,c))
             self.grid[r][c] = '.'
 
-    def add_start_and_obstacles(self):
+    def show_tracks(self):
+        for chi in self.xes:
+            self.grid[chi[0]][chi[1]] = 'X'
         for obstacle in self.obstacles:
             self.grid[obstacle[0]][obstacle[1]] = 'O'
         self.grid[self.start[0]][self.start[1]] = '^'
@@ -78,7 +80,7 @@ def main(fname):
 
     gg.walk_grid()
     gg.find_loops()
-    gg.add_start_and_obstacles()
+    gg.show_tracks()
     gg.pp()
     print (f'Part 1: {len(gg.xes)}')
     print (f'Part 2: {len(gg.obstacles)}')
