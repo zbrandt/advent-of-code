@@ -1,13 +1,14 @@
 """ Module for Advent of Code Day 4.
     https://adventofcode.com/2024/day/4
 """
-import sys, re
+# pylint: disable=line-too-long, missing-function-docstring
+import sys
+import re
 from itertools import product
 from collections import defaultdict
 
 dirs = list(product([-1, 0, 1], repeat=2))
 
-grid = None
 def main(fname):
     target = list('XMAS')
     data = fname.read().strip()

@@ -1,6 +1,7 @@
 """ Module for Advent of Code Day 5.
     https://adventofcode.com/2024/day/5
 """
+# pylint: disable=line-too-long, missing-function-docstring
 import sys
 from collections import defaultdict
 
@@ -35,7 +36,7 @@ def main(fname):
     for r in rules:
         drules[r[0]].append(r[1])
 
-    ordered = [get_ordered(drules, u) for u in updates]        
+    ordered = [get_ordered(drules, u) for u in updates]
     print (f'Part 1: {sum(ordered)}')
 
     unordered = [get_ordered(drules, u, True) for i,u in enumerate(updates) if not ordered[i]]

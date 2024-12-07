@@ -1,8 +1,9 @@
 """ Module for Advent of Code Day 2.
     https://adventofcode.com/2024/day/2
 """
-import sys
+# pylint: disable=line-too-long, missing-function-docstring
 # pylint: disable=redefined-builtin
+import sys
 from rich import print
 from rich.console import Console
 

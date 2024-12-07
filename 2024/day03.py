@@ -1,7 +1,9 @@
 """ Module for Advent of Code Day 3.
     https://adventofcode.com/2024/day/3
 """
-import sys, re
+# pylint: disable=line-too-long, missing-function-docstring
+import sys
+import re
 
 def main(fname):
     enabled = True

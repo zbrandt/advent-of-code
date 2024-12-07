@@ -1,9 +1,10 @@
 """ Module for Advent of Code Day 6.
     https://adventofcode.com/2024/day/6
 """
+# pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
+from collections import defaultdict
 from rich.progress import track
-from collections import defaultdict, Counter
 class GuardGallivant:
     dirs = ((-1,0), (0,1), (1,0),(0,-1))
     draw = defaultdict(lambda : '\u2588',
@@ -47,7 +48,7 @@ class GuardGallivant:
                 break
             self.path[(r,c)] |= 1 << direction
             r,c = rx,cx
-    
+
     def has_loop(self) -> bool:
         r,c = self.start
         direction = 0
@@ -55,7 +56,7 @@ class GuardGallivant:
         while self.valid_pos((r,c)):
             while True:
                 rx,cx = r + self.dirs[direction][0], c + self.dirs[direction][1]
-                
+
                 # check for loop
                 if (rx,cx) in steps:
                     if steps[(rx,cx)] == direction:
