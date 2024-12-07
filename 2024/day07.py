@@ -1,7 +1,7 @@
 """ Module for Advent of Code Day 7.
     https://adventofcode.com/2024/day/7
 """
-import sys
+import sys, re
 from operator import add, mul
 
 def cat(x,y):
@@ -16,12 +16,7 @@ def solve(target, numbers, ops, running = 0, op = add) -> int:
     return sum([solve(target, numbers[1:], ops, running, op) for op in ops],[])
 
 def main(fname):
-    lines = fname.read().strip().split('\n')
-    targets = {}
-    for l in lines:
-        s1, _, s2 = l.partition(':')
-        target, numbers = int(s1), list(map(int,s2.split()))
-        targets[target] = numbers
+    targets = {int(k) : list(map(int, v.split())) for k,v in re.findall(r'(\d+)\s*:\s*(\d.*)', fname.read())}
 
     sum1 = [k*int(k in solve(k, v, (add, mul))) for k,v in targets.items()]
     sum2 = [k*int(k in solve(k, v, (add, mul, cat))) for k,v in targets.items()]
