@@ -3,8 +3,15 @@
 """
 import sys
 from rich.progress import track
+from collections import defaultdict, Counter
 class GuardGallivant:
     dirs = ((-1,0), (0,1), (1,0),(0,-1))
+    draw = defaultdict(lambda : '\u2588',
+                        [(0b0101, '\u2503'), (0b1010, '\u2501'),
+                         (0b0011, '\u2517'), (0b0110, '\u250f'), (0b1100, '\u2513'),(0b1001, '\u251b'),
+                         (0b0111, '\u2523'), (0b1101, '\u252b'),
+                         (0b1111, '\u254b'),
+                        ])
 
     def pp(self) -> None:
         print ('\n'.join([''.join(row) for row in self.grid]))
@@ -24,20 +31,21 @@ class GuardGallivant:
         self.start = self.find_start()
         self.dims = [len(self.grid), len(self.grid[0])]
         self.obstacles = []
-        self.xes = []
+        self.path = defaultdict(int)
 
     def walk_grid(self):
         r,c = self.start
         direction = 0
         while self.valid_pos((r,c)):
             self.grid[r][c] = 'X'
-            self.xes.append((r,c))
+            self.path[(r,c)] |= 1 << ((direction + 2) % 4)
             while True:
                 rx,cx = r + self.dirs[direction][0], c + self.dirs[direction][1]
                 if self.valid_pos([rx,cx]) and self.grid[rx][cx] == '#':
                     direction = (direction + 1) % 4
                     continue
                 break
+            self.path[(r,c)] |= 1 << direction
             r,c = rx,cx
     
     def has_loop(self) -> bool:
@@ -62,27 +70,29 @@ class GuardGallivant:
         return False
 
     def find_loops(self):
-        for r,c in track(self.xes, description="Find loops..."):
+        for r,c in track(self.path.keys(), description="Find loops..."):
             self.grid[r][c] = 'O'
             if self.has_loop():
                 self.obstacles.append((r,c))
             self.grid[r][c] = '.'
 
     def show_tracks(self):
-        for chi in self.xes:
-            self.grid[chi[0]][chi[1]] = 'X'
+        for k,v in self.path.items():
+            self.grid[k[0]][k[1]] = self.draw[v]
         for obstacle in self.obstacles:
             self.grid[obstacle[0]][obstacle[1]] = 'O'
         self.grid[self.start[0]][self.start[1]] = '^'
 
 def main(fname):
+
+
     gg = GuardGallivant(fname)
 
     gg.walk_grid()
     gg.find_loops()
     gg.show_tracks()
     gg.pp()
-    print (f'Part 1: {len(gg.xes)}')
+    print (f'Part 1: {len(gg.path)}')
     print (f'Part 2: {len(gg.obstacles)}')
 
 if __name__ == "__main__":
