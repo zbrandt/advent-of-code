@@ -1,0 +1,32 @@
+{
+
+    "configurations": [
+        {
+            "name": "Python Debugger: Sample Data",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "args": ["${input:fileAOC}.sample.txt"]
+        },
+        {
+            "name": "Python Debugger: Input Data",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "args": ["${input:fileAOC}.input.txt"]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "fileAOC",
+            "type": "command",
+            "command": "extension.commandvariable.transform", // rioj7.command-variable extension required
+            "args": {
+                "text": "${file}",
+                "find": ".py$",
+                "replace": "",
+                "flags": ""
+            }
+        }
+    ],
+}
