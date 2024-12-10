@@ -5,6 +5,9 @@
 import sys
 import re
 
+BASE_BIG:int=0x4E01
+BASE_SMALL:int=ord('0')
+
 def main(fname) -> None:
 
     base_ch:int=0x4E01
@@ -16,18 +19,18 @@ def main(fname) -> None:
         else:
             print(''.join(disk))
 
-    def compact1(disk: str):
-        disk = list(disk)
-        i, j = 0, len(disk)-1
+    def compact1(disk: str) -> str:
+        ldisk:list[str] = list(disk)
+        i, j = 0, len(ldisk)-1
         while True:
-            while disk[j] =='.':
+            while ldisk[j] =='.':
                 j -= 1
-            while disk[i] != '.':
+            while ldisk[i] != '.':
                 i += 1
             if i >= j:
                 break
-            disk[i], disk[j] = disk[j], disk[i]
-        return ''.join(disk)
+            ldisk[i], ldisk[j] = ldisk[j], ldisk[i]
+        return ''.join(ldisk)
 
     def compact2(disk: str):
         pos, blocks, spaces = 0, [], []
@@ -37,23 +40,24 @@ def main(fname) -> None:
             spaces.append((pos, len(space), '.'))
             pos += len(space)
 
-        disk = list(disk)
+        ldisk = list(disk)
         for b, block in enumerate(reversed(blocks)):
             for s,space in enumerate(spaces):
                 if block[0] <= space[0]:
                     break
                 if block[1] <= space[1]:
                     for i in range(block[1]):
-                        disk[space[0] + i], disk[block[0] +i ] = block[2], '.'
+                        ldisk[space[0] + i], ldisk[block[0] +i ] = block[2], '.'
                     spaces[s] = (space[0] + block[1], space[1]-block[1], '.')
                     #print (f'move block {b}:{block} to space {s}:{space}. New space: {spaces[s]}')
                     break
-        return ''.join(disk)
+        return ''.join(ldisk)
 
     def compute_checksum(disk: str) -> int:
         return sum(i*(ord(ch)-base_ch) for i,ch in enumerate(disk) if ch != '.')
 
     nums = list(map(int,list(fname.read().strip())))
+    base_ch = (BASE_SMALL, BASE_BIG)[len(nums) < 26]
     disk = ''.join([(chr(base_ch+i//2),'.')[i&1] * nums[i] for i in range(len(nums))])
 
     disk1 = compact1(disk)
