@@ -33,7 +33,7 @@ def main(fname) -> None:
     for i, count in enumerate([25,50]):
         for _ in range(count):
             pp.blink()
-        print (f'Part {i+1}: {pp.total()}  {len(pp.stones.items())=}')
+        print (f'Part {i+1}: {pp.total()}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
