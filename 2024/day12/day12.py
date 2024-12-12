@@ -6,6 +6,10 @@ import sys
 from collections import defaultdict
 from collections import deque
 
+class GardenGroups:
+    def __init__(self):
+        pass
+
 def main(fname) -> None:
 
     dirs = [(-1,0),(0,-1),(1,0),(0,1)] # right / clockwise
@@ -16,21 +20,23 @@ def main(fname) -> None:
     def matching_neigbors(p):
         return sum(grid[p] == grid[tuple_add(p,d)] for d in dirs if tuple_add(p,d) in grid)   
 
-    def count_sides(root, area) -> int:
+    def count_sides(area) -> int:
         horz = dict()
         vert = dict()
         sides = 0
+
         for p in area:
-            if (p[0],p[1]-1) not in area:
+            up,left,down,right = [tuple_add(p,d) for d in dirs]
+            if left not in area:
                 horz[p] = 1
-            if (p[0],p[1]+1) not in area:
-                horz[(p[0],p[1]+1)] = 2
-            if (p[0]-1,p[1]) not in area:
+            if right not in area:
+                horz[right] = 2
+            if up not in area:
                 vert[p] = 1
-            if (p[0]+1,p[1]) not in area:
-                vert[(p[0]+1,p[1])] = 2
-        sides += sum([horz.get(p,0) != horz.get((p[0]-1,p[1]), 0) for p in horz])
-        sides += sum([vert.get(p,0) != vert.get((p[0],p[1]-1), 0) for p in vert])
+            if down not in area:
+                vert[down] = 2
+        sides += sum([v != horz.get((k[0]-1,k[1]), 0) for k,v in horz.items()])
+        sides += sum([v != vert.get((k[0],k[1]-1), 0) for k,v in vert.items()])
         return sides
 
 
@@ -56,7 +62,7 @@ def main(fname) -> None:
                 areas[root].add(p)
     
     perims = {k:sum(4 - matching_neigbors(p) for p in v) for k,v in areas.items()}
-    sides = {k:count_sides(k, v) for k,v in areas.items()}
+    sides = {k:count_sides(v) for k,v in areas.items()}
 
     prices1 = []
     for k,v in areas.items():
