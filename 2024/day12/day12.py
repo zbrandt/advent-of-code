@@ -15,7 +15,7 @@ class GardenGroups:
         self.perims = {k:sum(4 - self.friends(p) for p in v) for k,v in self.areas.items()}
         self.sides = {k:self.count_sides(v) for k,v in self.areas.items()}
 
-    dirs = [(-1,0),(0,-1),(1,0),(0,1)] # right / clockwise
+    dirs = [(-1,0),(0,-1),(1,0),(0,1)] # up, left, down, right // CCW
 
     @staticmethod
     def tuple_add(a:tuple, b:tuple) -> tuple:
@@ -40,11 +40,10 @@ class GardenGroups:
             q = deque([root])
             while q:
                 p = q.popleft()
-                if p in visited:
-                    continue
-                q.extend(x for d in self.dirs for x in [self.tuple_add(p,d)] if x in self.grid and self.grid[x] == ch and x not in visited)
-                visited.add(p)
-                areas[root].add(p)
+                if p not in visited:
+                    q.extend(x for d in self.dirs for x in [self.tuple_add(p,d)] if x in self.grid and self.grid[x] == ch and x not in visited)
+                    visited.add(p)
+                    areas[root].add(p)
         return areas
 
     def price_list(self, factor, verbose=False) -> int:
@@ -57,8 +56,8 @@ class GardenGroups:
 
 def main(fname) -> None:
     gg = GardenGroups(fname.read())
-    print (f'Part 1: {gg.price_list(gg.perims, True)}')
-    print (f'Part 2: {gg.price_list(gg.sides, True)}')
+    print (f'Part 1: {gg.price_list(gg.perims)}')
+    print (f'Part 2: {gg.price_list(gg.sides)}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
