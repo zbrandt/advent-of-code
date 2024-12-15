@@ -8,6 +8,14 @@ import operator
 from functools import reduce
 from blockify import blockify
 
+import numpy as np
+from scipy.stats import entropy
+
+def calc_entropy(pos):
+    hist, _, _ = np.histogram2d([x for x,y in pos], [y for x,y in pos], bins=10)
+    prob = hist / np.sum(hist)
+    return entropy(prob.flatten())
+
 def gridify(w, h, pos):
     grid = [[0] * w for y in range(h)]
     for p in pos:
@@ -43,16 +51,22 @@ def main(fname) -> None:
 
     # Part 2
     steps = 0
+    entr = base_entropy = calc_entropy(pos)
+    min_entropy = 10.0
     posx = pos
-    while not xmastree(posx):
+    while entr / base_entropy > 0.8 and steps < 1e4 :  # look for 20% drop in entropy
         steps += 1
         posx = do_steps(w, h, pos, vel, steps)
+        entr = calc_entropy(posx)
+        if entr < min_entropy:
+            min_entropy = entr
+            print (f'{steps=:6d} {entr=:7.4f}')
 
     #ppgrid(gridify(w, h, posx))
     ppgrid(blockify(gridify(w, h, posx)))
 
-    print (f'Part 1: {factor}')
-    print (f'Part 2: {steps}')
+    print (f'Part 1: {factor} safety factor')
+    print (f'Part 2: {steps} steps to Christmas')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
