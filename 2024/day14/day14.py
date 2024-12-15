@@ -7,6 +7,7 @@ import re
 import operator
 from functools import reduce
 from blockify import blockify
+from time import sleep
 
 import numpy as np
 from scipy.stats import entropy
@@ -51,20 +52,24 @@ def main(fname) -> None:
 
     # Part 2
     steps = 0
-    entr = base_entropy = calc_entropy(pos)
-    min_entropy = 10.0
+    entr = sum_entropy = min_entropy = mean_entropy = calc_entropy(pos)
     posx = pos
-    while entr / base_entropy > 0.8 and steps < 1e4 :  # look for 20% drop in entropy
+    while entr / mean_entropy > 0.8 and steps < w*h :  # look for 20% drop in entropy
         steps += 1
         posx = do_steps(w, h, pos, vel, steps)
         entr = calc_entropy(posx)
-        if entr < min_entropy:
-            min_entropy = entr
-            print (f'{steps=:6d} {entr=:7.4f}')
+        sum_entropy += entr
+        mean_entropy = sum_entropy / (steps+1)
+        min_entropy = min(min_entropy, entr)
+        ppgrid(blockify(gridify(w, h, posx)))
+        print (f'{steps=:6d} {entr=:7.4f} mean={mean_entropy:7.4f} min={min_entropy:7.4f}\n')
+        if entr / mean_entropy < 0.98:
+            sleep(0.1)
 
     #ppgrid(gridify(w, h, posx))
-    ppgrid(blockify(gridify(w, h, posx)))
+    #ppgrid(blockify(gridify(w, h, posx)))
 
+    print ('-' * w//2)
     print (f'Part 1: {factor} safety factor')
     print (f'Part 2: {steps} steps to Christmas')
 
