@@ -4,7 +4,6 @@
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
 import re
-from time import sleep
 
 def main(fname) -> None:
 
@@ -13,16 +12,16 @@ def main(fname) -> None:
 
     def tadd(a:tuple, b:tuple) -> tuple:
         return (a[0]+b[0], a[1]+b[1])
-    
+
     def tsub(a:tuple, b:tuple) -> tuple:
         return (a[0]-b[0], a[1]-b[1])
-    
+
     def push_depth(g, p, dxy) -> int:
         def incd(x):
             return x + 1 * bool(x)
         def maxd(x,y):
             return (0,max(x,y))[all([x,y])]
-    
+
         vert = dxy[1] != 0
         nxt = tadd(p,dxy)
         ch = g[nxt]
@@ -40,8 +39,8 @@ def main(fname) -> None:
         if ch == '.':
             return 1
         return 0
-    
-    def do_push(g, p, dxy, depth, bot = False, sib = False):
+
+    def do_push(g, p, dxy, depth, bot = False):
         if depth >= 1:
             ch = g[p]
             vert = dxy[1] != 0

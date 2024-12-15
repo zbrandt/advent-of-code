@@ -6,11 +6,11 @@ import sys
 import re
 import operator
 from functools import reduce
-from blockify import blockify
 from time import sleep
-
 import numpy as np
 from scipy.stats import entropy
+
+from blockify import blockify
 
 def calc_entropy(pos):
     hist, _, _ = np.histogram2d([x for x,y in pos], [y for x,y in pos], bins=10)
@@ -32,7 +32,7 @@ def xmastree(pos):
 
 def do_steps(w, h, pos, vel, cnt=1):
     return [((p[0] + cnt * v[0]) % w, (p[1] + cnt * v[1]) % h)  for p,v in zip(pos,vel)]
-    
+
 def main(fname) -> None:
     nums = re.findall(r'p=([-+]?\d+),([-+]?\d+) v=([-+]?\d+),([-+]?\d+)', fname.read())
     pos = [(int(n[0]),int(n[1])) for n in nums]
