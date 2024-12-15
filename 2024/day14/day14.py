@@ -69,7 +69,7 @@ def main(fname) -> None:
     #ppgrid(gridify(w, h, posx))
     #ppgrid(blockify(gridify(w, h, posx)))
 
-    print ('-' * w//2)
+    print ('-' * (w//2))
     print (f'Part 1: {factor} safety factor')
     print (f'Part 2: {steps} steps to Christmas')
 
