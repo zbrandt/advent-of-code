@@ -6,54 +6,50 @@ import sys
 import re
 import operator
 from functools import reduce
-import blockify
+from blockify import blockify
 
-def gridify(robots):
-    grid = []
-    for y in range(max(p[1] for p,v in robots)):
-        grid.append([])
-        for x in range(max(p[0] for p,v in robots)):
-            bots = sum([p == (x,y) for p,v in robots])
-            grid[-1].append(('.',f'{bots}')[bots > 0])
+def gridify(w, h, pos):
+    grid = [[0] * w for y in range(h)]
+    for p in pos:
+        grid[p[1]][p[0]] += 1
     return grid
 
 def ppgrid(grid):
-    print ('\n'.join(''.join(row) for row in grid))
+    print ('\n'.join(''.join(list(map(str,row))).replace('0','.') for row in grid))
     print ('-' * len(grid[0]))
 
-def xmastree(robots):
-    return len(robots) == len(set([p for p,_ in robots]))
+def xmastree(pos):
+    return len(pos) == len(set(pos))
 
+def do_steps(w, h, pos, vel, cnt=1):
+    return [((p[0] + cnt * v[0]) % w, (p[1] + cnt * v[1]) % h)  for p,v in zip(pos,vel)]
+    
 def main(fname) -> None:
-    factor = 0
-    robots = []
-    for px, py, vx, vy in re.findall(r'p=([-+]?\d+),([-+]?\d+) v=([-+]?\d+),([-+]?\d+)', fname.read()):
-        p = (int(px),int(py))
-        v = (int(vx),int(vy))
-        robots.append((p,v))
+    nums = re.findall(r'p=([-+]?\d+),([-+]?\d+) v=([-+]?\d+),([-+]?\d+)', fname.read())
+    pos = [(int(n[0]),int(n[1])) for n in nums]
+    vel = [(int(n[2]),int(n[3])) for n in nums]
 
     w,h = 11,7
-    if len(robots) > 20:
+    if len(pos) > 20:
         w,h = 101,103
 
     # Part 1
-    steps = 100
-    final = [(((p[0] + steps * v[0]) % w, (p[1] + steps * v[1]) % h ),v)  for r in robots for p,v in [r]]
+    pos100 = do_steps(w, h, pos, vel, 100)
     quad = [0] * 4
-    for p,v in final:
-        idx = (1 & int(p[0] > w//2)<<0) | (1<<1 & int(p[1] > h//2)<<1)
+    for p in pos100:
+        idx = (1<<0 & int(p[0] > w//2)<<0) | (1<<1 & int(p[1] > h//2)<<1)
         quad[idx] += (0,1)[p[0] != w//2 and p[1] != h//2]
     factor = reduce(operator.mul, quad, 1)
 
+    # Part 2
     steps = 0
-    manual = robots
-    while True:
+    posx = pos
+    while not xmastree(posx):
         steps += 1
-        manual = [(((p[0] + v[0]) % w, (p[1] + v[1]) % h ),v)  for r in manual for p,v in [r]]
-        xmas = xmastree(manual)
-        if xmas:
-            ppgrid(blockify.blockify(gridify(manual), fx=lambda x: x != '.'))
-            break
+        posx = do_steps(w, h, pos, vel, steps)
+
+    #ppgrid(gridify(w, h, posx))
+    ppgrid(blockify(gridify(w, h, posx)))
 
     print (f'Part 1: {factor}')
     print (f'Part 2: {steps}')
