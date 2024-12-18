@@ -3,12 +3,25 @@
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
+import re
 from collections import deque
 from collections import defaultdict
+from copy import copy
+from rich import print # pylint: disable=redefined-builtin
 
 def ppram(w, h, ram):
-    res = '\n'.join(''.join(ram[(x,y)] for x in range(w)) for y in range(h))
-    print (f'Ram {w}x{h}\n{res}')
+    x = '\n'.join(''.join(ram[(x,y)] for x in range(w)) for y in range(h))
+
+    if 'rich' in sys.modules:
+        drich = {'.': ' ',
+                '#': '[bold]#[/]',
+                'o': '[bold bright_green]O[/]'
+                }
+        rep = dict((re.escape(k), v) for k, v in drich.items())
+        pattern = re.compile("|".join(rep.keys()))
+        x = pattern.sub(lambda m: rep[re.escape(m.group(0))], x)
+
+    print (f'Ram {w}x{h}\n{x}')
 
 def tadd (a,b):
     return (a[0]+b[0], a[1]+b[1])
@@ -31,15 +44,20 @@ def test_ram(w, h, ram, b, drop, show=False) -> bool:
     pstart = (0,0)
     pexit = (w-1,h-1)
     seen = set()
-    d = deque([(pstart,0)])
+    d = deque([(pstart,0,[])])
     while d:
-        (p, steps) = d.popleft()
+        (p, steps, path) = d.popleft()
         #print (f'consider {(p,steps)}')
         if p not in seen:
             seen.add(p)
+            path.append(p)
             if p == pexit:
+                if show:
+                    for pxy in path:
+                        ram[pxy] = 'o'
+                    ppram(w,h,ram)
                 return steps
-            adj = [(nxy,steps+1) for dxy in dirs for nxy in [tadd(p, dxy)] if nxy not in seen and ram[nxy] != '#']
+            adj = [(nxy,steps+1,copy(path)) for dxy in dirs for nxy in [tadd(p, dxy)] if nxy not in seen and ram[nxy] != '#']
             #print (f'{adj=}')
             d.extend(adj)
     return 0
@@ -69,7 +87,7 @@ def main(fname):
         #print (f'test{mid+0}={a} test{mid+1}={b}')
         if a and not b:
             test_ram(w,h,ram,bytes,mid+0,True)
-            print (f'Part 2: {mid} ==> {bytes[mid]=}')
+            print (f'Part 2: {bytes[mid]=}')
             break
         if not a:
             high = mid-1
