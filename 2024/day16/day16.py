@@ -23,7 +23,12 @@ def main(fname) -> None:
         #print (f'{res}')
         return res
 
-
+    def pathsum(path) -> int:
+        sum = 0
+        for x in path:
+            sum += x[0]*1000+x[1]
+        return sum
+    
     def tadd(a:tuple, b:tuple) -> tuple:
         return (a[0]+b[0], a[1]+b[1])
     
@@ -54,27 +59,35 @@ def main(fname) -> None:
         x = f'{'\n'.join(''.join(m[(x,y)] for x in range(w)) for y in range(h))}'
         print (x)
 
+    def pppath(w,h,m,path):
+        mc = deepcopy(m)
+        for xy in path:
+            mc[xy] = 'O'
+        x = f'{'\n'.join(''.join(mc[(x,y)] for x in range(w)) for y in range(h))}'
+        print (x)
+
     def solve(m, spos, epos):
         scores = defaultdict(lambda : copy([100_000_000, 100_000_000, 100_000_000, 100_000_000]))
         scores[epos] = [0]*4
+        seats_per_best_score = defaultdict(set)
         neighbors = get_neighbors(m, scores, Triplet(epos, -1, 0))
         for n in neighbors:
             scores[n.pos][n.dir] = n.score
 
         m2 = deepcopy(m)
         seats = set()
-        d = deque([[t, set([t.pos, epos])] for t in neighbors])
+        d = deque([(t, set([epos, t.pos])) for t in neighbors])
         while d:
             #print (f'{d=}')
             t, path = d.popleft()
             neighs = get_neighbors(m, scores, t)
-            neighbors = [n for n in neighs if n.pos not in path]
+            neighbors = neighs
             for n in neighbors:
-                if n.score <= scores[n.pos][n.dir]:
-                    #print (f'{n=} {n.score} {scores[n.pos]}')
+                if n.pos not in path and n.score <= scores[n.pos][n.dir] and (n.score - 2000) < min(scores[n.pos]):
+                    seats_per_best_score[(n.pos,n.dir)] |= path | set([n.pos])
+                    if n.score < scores[n.pos][n.dir]:
+                        seats_per_best_score[(n.pos,n.dir)] = path | set([n.pos])
                     scores[n.pos][n.dir] = n.score
-                    if n.dir != t.dir:
-                        scores[t.pos][n.dir] = n.score - 1
                     #print (f'  new low score at {(n.pos, n.dir)} = {n.score}')
                     if n.pos == spos:
                         en = Triplet(n.pos, east, n.score + ((east - n.dir) % 4) * 1000)
@@ -83,13 +96,12 @@ def main(fname) -> None:
                             if en.score < scores[en.pos][en.dir]:
                                 seats = set()
                             scores[en.pos][en.dir] = en.score
-                            seats = seats | path | set([n.pos])
+                            seats = seats_per_best_score[(n.pos,n.dir)]
                     else:
                         npath = path | set([n.pos])
-                        print (f'append {n=} {len(npath)=} {len(seats)=}')
-                        if len(npath) > 3000:
-                            m2[n.pos] = 'X'
-                            ppmaze(w,h,m2)
+                        print (f'append {n=} {len(npath)=} {pathsum(npath)=}')
+                        if len(npath) > 2400:
+                            pppath(w,h,m2, npath)
                             input()
                         d.append([n, npath])
                         
