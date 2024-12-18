@@ -4,6 +4,9 @@
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
 import re
+from time import sleep
+
+#from rich import print # pylint: disable=redefined-builtin
 
 def main(fname) -> None:
 
@@ -25,7 +28,6 @@ def main(fname) -> None:
         vert = dxy[1] != 0
         nxt = tadd(p,dxy)
         ch = g[nxt]
-        #print (f'push_depth({p}, {dxy}): ch={g[nxt]}')
         if ch == '[':
             if vert:
                 return incd(maxd(push_depth(g, nxt, dxy), push_depth(g, tadd(nxt,(1,0)), dxy)))
@@ -46,7 +48,6 @@ def main(fname) -> None:
             vert = dxy[1] != 0
             nxt = tadd(p,dxy)
             nxtch = g[nxt]
-            #print (f'do_push({p}, {dxy}, {depth}): ch={ch} nxt={nxtch}')
             if nxtch == '[':
                 do_push(g, nxt, dxy, depth-1)
                 if vert and ch != '[':
@@ -60,13 +61,25 @@ def main(fname) -> None:
             if nxtch == 'O':
                 do_push(g, nxt, dxy, depth-1)
         if not bot:
-            #print (f'do_push({p}, {dxy}, {depth}): g[{p}] = {g[tsub(p,dxy)]}')
             g[p] = g[tsub(p,dxy)]
-            #print (f'do_push({p}, {dxy}, {depth}): g[{tsub(p,dxy)}] = .')
             g[tsub(p,dxy)] = '.'
 
     def ppgrid(w, h, grid):
-        print (f'{'\n'.join(''.join(grid[(x,y)] for x in range(w)) for y in range(h))}')
+        x = f'{'\n'.join(''.join(grid[(x,y)] for x in range(w)) for y in range(h))}'
+
+        if 'rich' in sys.modules:
+            drich = {'.': ' ',
+                    '[': '[bold bright_green]\u005D[/]',
+                    ']': '[bold bright_green]\u005D[/]',
+                    '@': '[bold bright_red]@[/]',
+                    '#': '[bold]#[/]',
+                    'O': '[bold bright_green]O[/]'
+                    }
+            rep = dict((re.escape(k), v) for k, v in drich.items())
+            pattern = re.compile("|".join(rep.keys()))
+            x = pattern.sub(lambda m: rep[re.escape(m.group(0))], x)
+
+        print (x)
 
     verbose = True
 
@@ -78,32 +91,29 @@ def main(fname) -> None:
     posx = [k for k,v in gridx.items() if v == '@'][0]
     w,h = max(k[0] for k in grid.keys())+1, max(k[1] for k in grid.keys())+1
 
+    grids = (
+        (grid, pos, w, h),
+        (gridx, posx, w*2, h),
+    )
+
     if verbose:
         ppgrid(w, h, grid)
         ppgrid(w*2, h, gridx)
 
-    for j,m in enumerate(moves):
-        d = dirs[m]
-        dist = push_depth(grid, pos, d)
-        if dist:
-            do_push(grid, pos, d, dist, bot = True)
-            pos = tadd(pos,d)
-        if verbose:
-            ppgrid(w, h, grid)
-            print (f'move "{m}" {j:5}/{len(moves):5}')
-
-    for j,m in enumerate(moves):
-        d = dirs[m]
-        dist = push_depth(gridx, posx, d)
-        if dist:
-            do_push(gridx, posx, d, dist, bot = True)
-            posx = tadd(posx,d)
-        if verbose:
-            ppgrid(w*2, h, gridx)
-            print (f'movex "{m}" {j:5}/{len(moves):5}')
+    for g,p,w,h in grids:
+        for j,m in enumerate(moves):
+            d = dirs[m]
+            dist = push_depth(g, p, d)
+            if dist:
+                do_push(g, p, d, dist, bot = True)
+                p = tadd(p,d)
+            if verbose:
+                ppgrid(w, h, g)
+                print (f'move "{m}" {j:5}/{len(moves):5}')
 
     boxsum = sum(p[1]*100 + p[0] for p,v in grid.items() if v == 'O')
     boxsum2 = sum(p[1]*100 + p[0] for p,v in gridx.items() if v == '[')
+    sleep (0.01)
 
     print (f'Part 1: {boxsum}')
     print (f'Part 2: {boxsum2}')
