@@ -17,7 +17,7 @@ class RamRun:
         self.w = max(xy[0] for xy in self.bytes)+1
         self.h = max(xy[1] for xy in self.bytes)+1
 
-    def pp(self, ram=None, path=[]):
+    def pp(self, ram, path):
 
         if not ram:
             ram = {(x,y):'.' for x in range(self.w) for y in range(self.h)}
@@ -65,7 +65,7 @@ def main(fname):
     drop = (10,1024)[rr.w > 10]
     steps = rr.ram_run(drop, True)
     print ('-' * rr.w)
-    
+
     low,mid,high = 0,0,len(rr.bytes)
     while low < high:
         mid = (low + high) // 2 + 1
@@ -81,7 +81,7 @@ def main(fname):
 
     print ('=' * rr.w)
     print (f'Part 1: {steps} steps')
-    print (f'Part 2: {rr.bytes[mid]}')    
+    print (f'Part 2: {rr.bytes[mid]}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)

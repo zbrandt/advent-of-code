@@ -5,8 +5,17 @@
 import sys
 import re
 from itertools import batched
+from time import sleep
 
-#from rich import print # pylint: disable=redefined-builtin
+from rich import print as rprint # pylint: disable=redefined-builtin
+
+def fmtbits(val, width, bknown, bempty):
+    bempty = max(bempty,bknown)
+    bknown = width - bknown
+    bempty = width - bempty
+    x = f'{val:0{width}b}'
+    rx = '[bold]' + x[:bempty] + '[/][green]' + x[bempty:bknown] + '[/][blue]' + x[bknown:]
+    return rx
 
 opcodes = { 0: 'adv',
                 1: 'bxl',
@@ -98,30 +107,46 @@ def main(fname) -> None:
     prog = list(map(int,re.findall(r'Program:\s(\S+)',data)[0].split(',')))
     cc = ChronospatialComputer(regs, prog)
     cc.execute(verbose=False, verbose2=True)
+    print ('-' * 20)
     cc.pp()
-    print (','.join(list(map(str,cc.output))))
+    print ('-' * 20)
+    print (f'Part 1: {",".join(list(map(str,cc.output)))}')
+    print ('=' * 20)
 
 
-    guesses = {k:False for k in list(range(0,1024))}
-    plen = len(cc.prog)
+    shift_amt = 3
+    base=1024
+    guesses = {k:False for k in list(range(0,base))}
     for idx in range(len(cc.prog)+1):
-        for reg in guesses.keys():
+        for j,reg in enumerate(guesses.keys()):
             cc.execute(reg)
             if cc.prog == cc.output:
-                print (f'{reg=} for the win')
+                print (f'\nPart 2: {reg:x} --> {reg}')
                 exit()
-            #print (f'cc.execute({reg}): {cc.prog[0]} == {cc.output[0]}')
+            #print (f'cc.execute({reg}): {cc.prog} == {cc.output}')
+            
+            rprint (f'Guess: {fmtbits(reg, 48, 10, 3 * idx + 10)}  {j:5}/({len(guesses)//base}*base)', end='\r')
             if len(cc.output) > idx:
                 guesses[reg] = all([cc.prog[-i] == cc.output[-i] for i in range(1,idx+2)])
+            #print (f'execute {reg} --> {guesses[reg]} --> {cc.output=} {cc.prog=}')
             if (guesses[reg]):
-                print (f'execute {reg} --> {cc.output=} {cc.prog=}')
+                #print (f'execute {reg} --> guesses[reg] --> {cc.output=} {cc.prog=}')
+                pass
+            #sleep(0.01)
 
         nextg = {}
+        mink,maxk = None, None
+        for k,v in guesses.items():
+            if v:
+                mink = [mink,k][mink is None or mink > k]
+                maxk = [maxk,k][maxk is None or maxk < k]
+
         for k,v in guesses.items():
             if v:
                 for j in range(0,1024):
-                    nextg[(k << 3) ^ j] = False
-        print (f'Round {idx} : True Guesses: {sum(guesses.values())} --> Next round: {len(nextg)} ')
+                    nextg[(k << shift_amt) ^ j] = False
+        rprint (f' ' * 80, end='\r')
+        print (f'Round {idx} : True Guesses: {sum(guesses.values())} {mink=:x} {maxk=:x} --> Next round: {len(nextg)} ')
         guesses = nextg
 
 
