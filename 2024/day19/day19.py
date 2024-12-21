@@ -24,28 +24,27 @@ class LinenLayout:
         print (f'{len(self.designs)} designs. Max length {self.maxd}')
 
     @functools.cache
-    def solve_target_verbose(self, target, depth=0, pre='') -> int:
+    def solve_v(self, target, depth=0, pre='') -> int:
         if not target:
-            print (f'{' '*depth}solve_target_verbose({pre}+{target}, {depth}) ==> 1 Design')
+            print (f'{' '*depth}solve_v({pre}+{target}, {depth}) ==> 1 Design')
             return 1
-        print (f'{' '*depth}solve_target_verbose({pre}+{target}, {depth})')
-        x = [self.solve_target_verbose(target[dlen+1:],depth+1,pre+target[:dlen+1]) * 1 for dlen in range(min(len(target), self.maxd)) if target[:dlen+1] in self.designs]
-        y = [target[dlen+1:]                                                    for dlen in range(min(len(target), self.maxd)) if target[:dlen+1] in self.designs]
-        print (f'{' '*depth}solve_target_verbose({pre}+{target}, {depth}) ==> {sum(x)=} ==> {list(zip(y,x))}')
+        print (f'{' '*depth}solve_v({pre}+{target}, {depth})')
+        x = [self.solve_v(target[dlen+1:],depth+1,pre+target[:dlen+1]) for dlen in range(min(len(target), self.maxd)) if target[:dlen+1] in self.designs]
+        y = [target[dlen+1:]                                           for dlen in range(min(len(target), self.maxd)) if target[:dlen+1] in self.designs]
+        print (f'{' '*depth}solve_v({pre}+{target}, {depth}) ==> {sum(x)=} ==> {list(zip(y,x))}')
         return sum(x)
 
     @functools.cache
-    def solve_target_quiet(self, target) -> int:
+    def solve_q(self, target) -> int:
         if not target:
             return 1
-        x = [self.solve_target_quiet(target[dlen+1:]) * 1 for dlen in range(min(len(target), self.maxd)) if target[:dlen+1] in self.designs]
-        return sum(x)
+        return sum([self.solve_q(target[dlen+1:]) for dlen in range(min(len(target), self.maxd)) if target[:dlen+1] in self.designs])
 
     def solve_target(self, target, verbose=False) -> int:
         if verbose:
-            return self.solve_target_verbose(target)
+            return self.solve_v(target)
         else:
-            return self.solve_target_quiet(target)
+            return self.solve_q(target)
 
 def main(fname):
     ll = LinenLayout()
