@@ -17,17 +17,23 @@ def check(t):
     c = t[1] >= 0 and t[1] < len(city[0])
     return r and c
 
+def helper(origin, diff):
+    new = tadd(origin, diff)
+    if not check(new):
+        return []
+    return [new] + helper(new, diff)
+
 for char in chars:
     for start in freqs[char]:
         for end in freqs[char]:
             if start != end:
                 diff = tsub(end, start)
-                print(diff)
-                locs = [tadd(end, diff), tadd(start, tinv(diff))]
-                print(locs)
+                locs = helper(end, diff) + helper(start, tinv(diff))
                 antinodes.extend([pos for pos in locs if pos not in antinodes and check(pos)])
 
 antinodes = list(set(antinodes))
+for char in chars:
+    antinodes.extend([pos for pos in freqs[char] if pos not in antinodes])
 print(len(antinodes))
 
 for r in range(len(city)):
