@@ -8,17 +8,22 @@ for line in sys.stdin:
     products.append(int(a))
     factors.append([int(x) for x in b.split(" ")[1:]])
 
+ops = [
+    lambda x, y: [x + y],
+    lambda x, y: [x * y],
+    lambda x, y: [int(str(x) + str(y))]
+]
+
 def helper(nums):
-    add = nums[0] + nums[1]
-    mul = nums[0] * nums[1]
+    combos = []
+    for op in ops:
+        combos.extend(op(nums[0], nums[1]))
     if len(nums) == 2:
-        return [add, mul]
-    nums = nums[2:]
-    nums.insert(0, add)
-    adds = [x for x in helper(nums)]
-    nums[0] = mul
-    muls = [x for x in helper(nums)]
-    return adds + muls
+        return combos
+    permutations = []
+    for x in combos:
+        permutations += helper([x] + nums[2:])
+    return permutations
 
 def check(goal, nums):
     return goal in helper(nums)
