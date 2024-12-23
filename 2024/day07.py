@@ -8,16 +8,20 @@ for line in sys.stdin:
     products.append(int(a))
     factors.append([int(x) for x in b.split(" ")[1:]])
 
-def helper(nums, total):
+def helper(nums):
     add = nums[0] + nums[1]
     mul = nums[0] * nums[1]
     if len(nums) == 2:
         return [add, mul]
     nums = nums[2:]
-    return [x for x in helper(nums.insert(0, add), add)] + [x for x in helper(nums[2:].insert(0, mul), mul)]
+    nums.insert(0, add)
+    adds = [x for x in helper(nums)]
+    nums[0] = mul
+    muls = [x for x in helper(nums)]
+    return adds + muls
 
 def check(goal, nums):
-    return goal in helper(nums, 0)
+    return goal in helper(nums)
 
 for i in range(len(products)):
     if check(products[i], factors[i]):
