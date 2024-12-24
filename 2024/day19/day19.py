@@ -3,7 +3,7 @@
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring, method-cache-max-size-none
 import sys
-import functools
+from functools import cache
 
 def cmp(full, pre) -> bool:
     #print (f'cmp({full}, {pre:4}) = {full[:len(pre)] == pre}')
@@ -23,7 +23,7 @@ class LinenLayout:
         self.maxd = max([len(t) for t in self.designs])
         print (f'{len(self.designs)} designs. Max length {self.maxd}')
 
-    @functools.cache
+    @cache
     def solve_v(self, target, depth=0, pre='') -> int:
         if not target:
             print (f'{' '*depth}solve_v({pre}+{target}, {depth}) ==> 1 Design')
@@ -34,7 +34,7 @@ class LinenLayout:
         print (f'{' '*depth}solve_v({pre}+{target}, {depth}) ==> {sum(x)=} ==> {list(zip(y,x))}')
         return sum(x)
 
-    @functools.cache
+    @cache
     def solve_q(self, target) -> int:
         if not target:
             return 1
@@ -53,7 +53,7 @@ def main(fname):
     possible = []
     for i,t in enumerate(ll.targets):
         possible.append(ll.solve_target(t, False))
-        print (f'{i}/{len(ll.targets)} --> {possible[-1]:14d}  {t}')
+        #print (f'{i}/{len(ll.targets)} --> {possible[-1]:14d}  {t}')
 
     print (f'Part 1: {sum([p>0 for p in possible])}')
     print (f'Part 2: {sum(possible)}')

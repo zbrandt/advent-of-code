@@ -10,14 +10,12 @@ BASE_SMALL:int=ord('0')
 
 def main(fname) -> None:
 
-    base_ch:int=0x4E01
-    #base_ch:int=ord('0')
-
     def pp(disk):
-        if base_ch != ord('0'):
-            print(''.join(disk).replace('.', chr(base_ch-1)))
+        if base_ch != BASE_SMALL:
+            x = (''.join(disk).replace('.', chr(base_ch-1)))
         else:
-            print(''.join(disk))
+            x = (''.join(disk))
+        print (f'{x:.80s}')
 
     def compact1(disk: str) -> str:
         ldisk:list[str] = list(disk)
@@ -57,7 +55,7 @@ def main(fname) -> None:
         return sum(i*(ord(ch)-base_ch) for i,ch in enumerate(disk) if ch != '.')
 
     nums = list(map(int,list(fname.read().strip())))
-    base_ch = (BASE_SMALL, BASE_BIG)[len(nums) < 26]
+    base_ch = (BASE_SMALL, BASE_BIG)[len(nums) > 26]
     disk = ''.join([(chr(base_ch+i//2),'.')[i&1] * nums[i] for i in range(len(nums))])
 
     disk1 = compact1(disk)
