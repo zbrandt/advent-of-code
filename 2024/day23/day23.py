@@ -4,6 +4,7 @@
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
 import re
+from functools import cache
 
 class Graph:
     def __init__(self):
@@ -12,7 +13,7 @@ class Graph:
         self.triplets:set= set()
 
     def add_pair(self, na, nb):
-        print (f'G:add_pair({na}, {nb})')
+        #print (f'G:add_pair({na}, {nb})')
         a = self.nodes.get(na, None)
         b = self.nodes.get(nb, None)
         newa = not a
@@ -22,7 +23,7 @@ class Graph:
         if newa:
             a = Node(na)
             self.nodes[a.name] = a
-        
+
         if newb:
             b = Node(nb)
             self.nodes[b.name] = b
@@ -47,13 +48,19 @@ class Graph:
 
         self.merge_sets(a.name, b.name)
 
-    def doily(self, nodeset, nway) -> set:
-        
-        for nodes in nodeset:
-            isection = None]
-            for n in nodes:
-                if isection is None:
-                    isection = nodes.
+    @cache
+    def grow_doily(self, doily_tuple) -> set:
+        doily_set = set(doily_tuple)
+        max_doily = doily_set
+        candidates = set.intersection(*[self.nodes[n].peers for n in doily_set]) - doily_set
+        if len(candidates):
+            #print (f'grow_doilies: size={len(doily_set)} ==> {len(candidates)}:{candidates}')
+            pass
+        for c in candidates:
+            md = self.grow_doily(tuple(doily_set | set([c])))
+            if len(md) > len(max_doily):
+                max_doily = md
+        return max_doily
 
     def merge_sets(self, na, nb):
         a = self.nodes.get(na, None)
@@ -113,14 +120,24 @@ def triple_t(t) -> bool:
 
 def main(fname):
     g = Graph()
+    max_doily = set()
     data = fname.read()
-    for (a,b) in re.findall(r'(\w\w)-(\w\w)', data):
-        g.add_pair(a,b)
+    edges = re.findall(r'(\w\w)-(\w\w)', data)
     
-    print (f'Triplets = {len(g.triplets)}')
-    print (f'Triplets = {len([t for t in g.triplets if triple_t(t)])}')
+    for i,(a,b) in enumerate(edges):
+        print (f'add_pair {i+1:4d}/{len(edges)}: ({a},{b}), {max_doily=}', end='\r')
+        g.add_pair(a,b)
+        doily = g.grow_doily((a,b))
+        if len(doily) > len(max_doily):
+            max_doily = doily
+        print()
 
-    print (f'{g=}')
+    print (f'All Triplets = {len(g.triplets)}')
+    print (f'"T" Triplets = {len([t for t in g.triplets if triple_t(t)])}')
+
+    print (f'Max Doily: len={len(max_doily)}: {','.join(sorted(list(max_doily)))}')
+
+    #print (f'{g=}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
