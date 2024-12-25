@@ -48,7 +48,7 @@ class Graph:
 
         self.merge_sets(a.name, b.name)
 
-    @cache
+    @cache # pylint: disable=method-cache-max-size-none
     def grow_doily(self, doily_tuple) -> set:
         doily_set = set(doily_tuple)
         max_doily = doily_set
@@ -123,7 +123,7 @@ def main(fname):
     max_doily = set()
     data = fname.read()
     edges = re.findall(r'(\w\w)-(\w\w)', data)
-    
+
     for i,(a,b) in enumerate(edges):
         print (f'add_pair {i+1:4d}/{len(edges)}: ({a},{b}), {max_doily=}', end='\r')
         g.add_pair(a,b)
@@ -132,12 +132,11 @@ def main(fname):
             max_doily = doily
         print()
 
-    print (f'All Triplets = {len(g.triplets)}')
-    print (f'"T" Triplets = {len([t for t in g.triplets if triple_t(t)])}')
+    t_triples = [t for t in g.triplets if triple_t(t)]
+    print (f'Part 1: {len(t_triples)}')
+    print (f'Part 2: {','.join(sorted(list(max_doily)))}')
 
-    print (f'Max Doily: len={len(max_doily)}: {','.join(sorted(list(max_doily)))}')
-
-    #print (f'{g=}')
+    print (f'{g=}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)

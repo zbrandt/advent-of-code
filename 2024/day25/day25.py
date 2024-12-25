@@ -14,13 +14,13 @@ def main(fname):
     for keylock in re.findall(r'((?:[#\.]{5}\s){7})', data):
         grid = {(x,y):ch for y,row in enumerate(keylock.split('\n')) for x,ch in enumerate(row)}
         top = ''.join(grid[(x,0)] for x in range(w))
-        if (top == '#' * w):
+        if top == '#' * w:
             heights = [''.join(grid[(col,y)] for y in range(h)).index('.')-1 for col in range(w)]
             all_locks.append(heights)
         else:
             heights = [''.join(grid[(col,y)] for y in reversed(range(h))).index('.')-1 for col in range(w)]
             all_keys.append(heights)
-    
+
     combos = product(all_locks, all_keys)
     print (f'{len(all_locks)} locks * {len(all_keys)} keys')
     fits = [all([l+k<=5 for l,k in zip(*c)]) for c in combos]
