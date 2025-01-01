@@ -1,20 +1,18 @@
-""" Module for Advent of Code Day 9.
-    https://adventofcode.com/2015/day/9
+""" Module for Advent of Code Day 12.
+    https://adventofcode.com/2015/day/12
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
-import re
 import json
 
 
 def get_nums(jdata, no_red = False) -> list[int]:
-    #print (jdata)
     if isinstance(jdata, list):
         out = []
         for elem in jdata:
             out.extend(get_nums(elem, no_red))
         return out
-    elif isinstance(jdata, dict):
+    if isinstance(jdata, dict):
         out = []
         for k,v in jdata.items():
             if isinstance(k, int):
@@ -23,20 +21,13 @@ def get_nums(jdata, no_red = False) -> list[int]:
                 return []
             out.extend(get_nums(v, no_red))
         return out
-    elif isinstance(jdata, int):
+    if isinstance(jdata, int):
         return [jdata]
-    elif isinstance(jdata, str):
-        return []
-    else:
-        print (f'{jdata=}')
-        assert False
+    return []
 
 def main(fname):
 
     data = fname.read().strip()
-    
-    #nums = [int(x) for x in re.findall(r'([-|+]?\d+)',data)]
-    #print (f'Part 1: {sum(nums)}')
 
     jdata = json.loads(data)
     for i in range(2):
