@@ -11,7 +11,7 @@ import numpy as np
 def main(fname):
 
     data = fname.read().strip()
-    ingredients = {name: np.array(list(map(int,quals))) for name, *quals in re.findall(r'(?m)(\w+):\s\S+\s(\S+),\s\S+\s(\S+),\s\S+\s(\S+),\s\S+\s(\S+),\s\S+\s(\S+)', data)}
+    ingredients = {name: np.array(list(map(int,quals))) for name, *quals in re.findall(r'(?m)(\S+):'+','.join([r'\s\S+\s(\S+)']*5), data)}
     ingr_mx = np.matrix(list(ingredients.values()))
     mixes = {tuple(x[ing] for ing in list(ingredients)) for x in [Counter(c) for c in Cwr(ingredients, 100)]}
     all_scores = [np.matrix(ingr_mx.T @ np.array(m)).A1 for m in list(mixes)]
