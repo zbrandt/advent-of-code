@@ -2,31 +2,31 @@ import sys
 
 line = sys.stdin.read()
 blocks = ""
+files = []
 count = 0
 
 index = 48
 for i in range(len(line)):
     if i % 2 == 0:
-        blocks += int(line[i]) * str(chr(index))
+        file = int(line[i]) * str(chr(index))
+        blocks += file
+        files.insert(0, file)
         index += 1
     else:
         blocks += int(line[i]) * '.'
 
-def check(chars):
-    for i in reversed(range(len(chars))):
-        if chars[i] != '.':
-            return i
-
+f, s = 0, lambda x: '.' * len(x)
+while f < len(files):
+    file = files[f]
+    space = s(file)
+    if space in blocks:
+        i, j = blocks.index(space), blocks.index(file)
+        if i < j:
+            blocks = blocks[0:i] + file + blocks[i + len(file):j] + space + blocks[j + len(space):len(blocks)]
+    f += 1
+    
 chars = list(blocks)
-i, j = blocks.index('.'), len(blocks) - 1
-while i <= j:
-    chars[i], chars[j] = chars[j], chars[i]
-    i = chars.index('.')
-    j = check(chars)
-
-print(blocks)
-# print(''.join(chars))
-for i in range(chars.index('.')):
+for i in range(len(blocks)):
     if chars[i] != '.':
         count += i * int(ord(chars[i]) - 48)
 print(count)
