@@ -1,5 +1,5 @@
-""" Module for Advent of Code Day 17.
-    https://adventofcode.com/2015/day/16=7
+""" Module for Advent of Code Day 18.
+    https://adventofcode.com/2015/day/18
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
@@ -32,13 +32,17 @@ def epoch(grid: np.ndarray, corners) -> np.ndarray:
 def main(fname):
     ogrid = np.pad(np.loadtxt(StringIO(fname.read().strip().replace('.', ' 0').replace('#', ' 1')), dtype=int), 1)
 
+    grids = []
     for part in range(2):
-        grid  = ogrid.copy()
+        grid = ogrid.copy()
         set_corners(grid, part)
         for _ in range (100):
             ppgrid (grid)
             grid = epoch(grid, part)
-        print (f'Part {part+1}: {np.sum(grid)}')
+        grids.append(grid)
+
+    for part in range(2):
+        print (f'Part {part+1}: {np.sum(grids[part])}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
