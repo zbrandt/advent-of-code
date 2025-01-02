@@ -28,6 +28,10 @@ def check(x, r, c):
     return dest
 
 sum = 0
+ratings = 0
 for head in heads:
-    sum += len(set(check(0, head[0], head[1])))
+    dest = check(0, head[0], head[1])
+    ratings += len(dest)
+    sum += len(set(dest))
 print(sum)
+print(ratings)
