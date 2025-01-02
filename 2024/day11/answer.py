@@ -1,25 +1,23 @@
 import sys
-stones = sys.stdin.read().strip().split(" ")
+from collections import Counter
+stones = Counter(list(map(int, sys.stdin.read().split(" "))))
 
-def check(s):
-    while len(s) > 1 and s[0] == "0":
-        s = s[1:]
-    return s
-
-b = 0
-while b < 25:
-    i = 0
-    while i < len(stones):
-        s = stones[i]
-        if int(s) == 0:
-            stones[i] = '1'
-        elif len(s) % 2 == 0:
-            stones[i] = check(s[0:len(s) // 2])
-            stones.insert(i + 1, check(s[len(s) // 2:len(s)]))
-            i += 1
+i = 0
+while i < 75:
+    temp = Counter()
+    for s, c in stones.items():
+        if s == 0:
+            temp[1] += c
+        elif len(str(s)) % 2 == 0:
+            st = str(s)
+            half = len(st) // 2
+            f, l = int(st[:half]), int(st[half:])
+            temp[f] += c
+            temp[l] += c
         else:
-            stones[i] = str(int(stones[i]) * 2024)
-        i += 1
-    b += 1
+            temp[s * 2024] += c
+    stones = temp
+    i += 1
 
-print(len(stones))
+print(sum(stones.values()))
+
