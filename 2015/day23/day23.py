@@ -11,8 +11,9 @@ class TuringLock:
         self.ip:int = 0
         self.prog:list[tuple[str]] = prog
 
-    def execute(self):
+    def execute(self, a=0, b=0):
         self.ip = 0
+        self.reg =  {'a':a, 'b':b}
         while self.ip < len(self.prog):
             inst,op1,op2 = self.prog[self.ip]
             match inst:
@@ -36,14 +37,12 @@ class TuringLock:
         return f'TuringLock(reg={self.reg}, ip={self.ip}, len(prog)={len(self.prog)})'
 
 def main(fname):
-    data = fname.read().strip()
-    program = [(inst, op1, op2) for inst, op1, op2 in re.findall(r'(?m)^(\S+)\s(\S+)(?:, (\S+))?$', data)]
+    program = re.findall(r'(?m)^(\S+)\s(\S+)(?:, (\S+))?$', fname.read())
 
     tl = TuringLock(program)
     for i in range(2):
-        tl.reg = {'a':i, 'b':0}
-        tl.execute()
-        print (f'Part {i+1}: {tl.reg['b']} -- {tl}')
+        tl.execute(a=i, b=0)
+        print (f'Part {i+1}: {tl.reg['b']}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
