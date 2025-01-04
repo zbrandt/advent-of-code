@@ -117,11 +117,10 @@ class WizardSimulator:
             if s.duration == 0:
                 desc += f'{s.name} wears off.\n'
                 del self.spells[s.name]
-        
+
         self.turns += 1
         self.who, self.opp = self.opp, self.who
 
-        #print (f'{self.who.name=} {self.opp.name=} {player.name=} {isinstance(player, Wizard)=}')
         if isinstance(player, Wizard):
             games = self.wiz_turn(desc)
         else:
