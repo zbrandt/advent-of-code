@@ -1,7 +1,7 @@
 """ Module for Advent of Code Day 1.
     https://adventofcode.com/2016/day/1
 """
-# pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
+# pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring, redefined-builtin
 import sys
 import re
 from collections import defaultdict
