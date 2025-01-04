@@ -6,23 +6,17 @@ import sys
 import re
 
 def get_pos(row, col):
-    x = ((((row-1)+col)**2) - (row-col-1))//2
-    #print (f'pos({row=}, {col=}) ==> {x}')
-    return (x)
+    return ((((row-1)+col)**2) - (row-col-1))//2
 
 def nxt(x):
-    return x * 252_533 % 33_554_393
+    return x * 252533 % 33554393
 
 def main(fname):
-
     row, col = [int(digits) for digits in re.findall(r'(\d+)', fname.read())]
-    code = 20_151_125
+    code = 20151125
     x = get_pos(row, col)
-    for i in range(x-1):
-        if i % (1000-31) == 0:
-            print (f'{i+1}/{x}', end='\r')
+    for _ in range(x-1):
         code = nxt(code)
-    print (' '*20, end='\r')
 
     print (f'Part 1: {code}')
 
