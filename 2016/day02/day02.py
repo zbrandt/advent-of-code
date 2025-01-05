@@ -26,17 +26,17 @@ def create_keypad(i, pads):
     dap = {v:k for k,v in pad.items()}
     return pad, dap
 
+def walk(keypad, pos, moves):
+    for m in moves:
+        pos = (pos, pos + m)[pos + m in keypad]
+        yield pos
+
 def main(fname):
     moves = [[dirs[ch] for ch in line] for line in fname.read().strip().split('\n')]
     for i in range(2):
         keypad, dapyek = create_keypad(i, keypads)
-        p = dapyek['5']
-        code = ''
-        for m in moves:
-            for step in m:
-                if p+step in keypad:
-                    p = p+step
-            code += keypad[p]
+        pos = dapyek['5']
+        code = ''.join(keypad[pos := [x for x in walk(keypad, pos, row)][-1]] for row in moves)
         print (f'Part {i+1}: {code}')
 
 if __name__ == "__main__":
