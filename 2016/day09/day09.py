@@ -5,8 +5,6 @@
 import sys
 import re
 
-re.DEBUG = False
-
 def decomp(x, recur = True) -> int:
     expansion = 0
     pos = 0
@@ -25,7 +23,7 @@ def main(fname):
 
     inp = fname.read().strip()
     print (f'Part 1: {decomp(inp, False)}')
-    print (f'Part 1: {decomp(inp, True)}')
+    print (f'Part 2: {decomp(inp, True)}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
