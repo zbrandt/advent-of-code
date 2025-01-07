@@ -5,8 +5,9 @@
 import sys
 import re
 import numpy as np
+from collections import defaultdict
 
-ocr_4x6 =  {0x19297a52:'A', 0x392e4a5c:'B', 0x1928424c:'C', 0x39294a5c:'D', 0x3d0e421e:'E', 0x3d0e4210:'F', 0x19285a4e:'G', 0x252f4a52:'H', 0x1c42108e:'I', 0x0c210a4c:'J', 0x254c5292:'K', 0x2108421e:'L', 0x19294a4c:'O', 0x39297210:'P', 0x39297292:'R', 0x1d08305c:'S', 0x1c421084:'T', 0x25294a4c:'U', 0x23151084:'Y', 0x3c22221e:'Z'}
+ocr_4x6 =  defaultdict(lambda : '?', {0x19297a52:'A', 0x392e4a5c:'B', 0x1928424c:'C', 0x39294a5c:'D', 0x3d0e421e:'E', 0x3d0e4210:'F', 0x19285a4e:'G', 0x252f4a52:'H', 0x1c42108e:'I', 0x0c210a4c:'J', 0x254c5292:'K', 0x2108421e:'L', 0x19294a4c:'O', 0x39297210:'P', 0x39297292:'R', 0x1d08305c:'S', 0x1c421084:'T', 0x25294a4c:'U', 0x23151084:'Y', 0x3c22221e:'Z'})
 
 def main(fname):
 
