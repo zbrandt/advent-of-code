@@ -16,6 +16,7 @@ def inv_rotate_by(wdssapx, x) -> str:
             matches.append(passwd)
     if len(matches) != 1:
         print (f'inv_rotate_by: ALERT!!! {len(matches)} solutions: {matches}')
+    #assert matches[0] == matches[-1]
     return matches[0]
 
 def do_step (i, inst, passwd, inv, verbose=False) -> str:
@@ -80,18 +81,19 @@ def do_step (i, inst, passwd, inv, verbose=False) -> str:
     return passwd
 
 def main(fname):
+    verbose = False
     lines = [l.strip() for l in fname.readlines()]
-    passwd = ('abcde','abcdefgh')[len(lines) > 40]
 
-    for i,inst in enumerate(lines):
-        passwd = do_step(i, inst, passwd, False)
-    print (f'Part 1: {passwd}')
-    
-    if len(lines) > 40:
-        passwd = 'fbgdceah'
-        for i,inst in reversed(list(enumerate(lines))):
-            passwd = do_step(i, inst, passwd, True)
-        print (f'Part 2: {passwd}')
+    if len(lines) < 10:
+        for i,inst in enumerate(lines):
+            passwd = do_step(i, inst, 'abcde', False, True)
+        print (f'Sample: {passwd}')
+        return
+
+    for part, passwd, step in ((1, 'abcdefgh', 1), (2, 'fbgdceah', -1)):
+        for i,inst in enumerate(lines[::step]):
+            passwd = do_step(i, inst, passwd, step == -1, verbose)
+        print (f'Part {part}: {passwd}')
 
 if __name__ == "__main__":
     main(open(sys.argv[1], encoding="utf-8") if len(sys.argv) > 1 else sys.stdin)
