@@ -7,8 +7,7 @@ from functools import cache
 
 def triplewise(iterable):
     iterator = iter(iterable)
-    a = next(iterator, None)
-    b = next(iterator, None)
+    a,b = next(iterator, None), next(iterator, None)
     yield '.', a, b
     for c in iterator:
         yield a, b, c
