@@ -4,7 +4,7 @@
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring, redefined-builtin
 import sys
 from math import log
-from  itu.algs4.searching import red_black_bst
+from  itu.algs4.searching import red_black_bst # https://github.com/itu-algorithms/itu.algs4/blob/master/README.md
 from rich import print
 from rich.progress import (
     BarColumn,
@@ -15,40 +15,34 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-class Table:
-    def __init__(self, size, progress:bool = True):
-        progress_bar = Progress(
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+pb_format = [TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
             BarColumn(),
             MofNCompleteColumn(),
             TextColumn("•"),
             TimeElapsedColumn(),
             TextColumn("•"),
             TimeRemainingColumn(),
-            disable=not progress
-        )
+]
+class Table:
+    def __init__(self, size, progress:bool = True):
         self.size = size
         self.seats:red_black_bst.RedBlackBST = red_black_bst.RedBlackBST()
+
+        progress_bar = Progress(*pb_format, disable=not progress)
         with progress_bar as p:
             if progress:
                 print (f'Setting up round table for {size} elves ...')
-                for i in p.track(range(size)):
-                    self.seats.put(i+1, 0)
-            else:
-                for i in range(size):
-                    self.seats.put(i+1, 0)
+                setup = p.add_task(description='', total=size)
+                p.update(setup, advance=1)
+
+            for i in range(size):
+                self.seats.put(i+1, 0)
+                if progress:
+                    p.update(setup, advance=1)
+            p.update(setup, visible=False)
 
     def play(self, rule, progress:bool = True):
-        progress_bar = Progress(
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-            BarColumn(),
-            MofNCompleteColumn(),
-            TextColumn("•"),
-            TimeElapsedColumn(),
-            TextColumn("•"),
-            TimeRemainingColumn(),
-            disable=not progress
-        )
+        progress_bar = Progress(*pb_format, disable=not progress)
         with progress_bar as p:
             if progress:
                 print (f'Playing {rule.__name__} game ...')
@@ -63,7 +57,8 @@ class Table:
                 pos = self.elf_left(pos)
                 if progress:
                     p.update(game_play, advance=1)
-
+            
+            p.update(game_play, visible=False)
         return self.seats.min()
 
     def elf_left(self, elf):
