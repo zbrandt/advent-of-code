@@ -1,9 +1,17 @@
 import sys
 
+# def invalid(id):
+#     if len(id) % 2 != 0:
+#         return False
+#     return id[:(len(id) // 2)] == id[(len(id) // 2):]
+
 def invalid(id):
-    if len(id) % 2 != 0:
-        return False
-    return id[:(len(id) // 2)] == id[(len(id) // 2):]
+    i = len(id) // 2
+    while i > 0:
+        if "".join(id.split(id[:i])) == "":
+            return True
+        i -= 1
+    return False    
 
 invalid_sum = 0
 ranges = sys.stdin.readline().split(',')
