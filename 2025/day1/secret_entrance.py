@@ -4,13 +4,17 @@ count = 0
 dial = 50
 for line in sys.stdin:
     instruction = line.strip()
-    
+    spin = int(instruction[1:])
+    print(dial, count)
     if instruction[:1] == "R":
-        dial = (dial + int(instruction[1:])) % 100
+        for i in range(dial + 1, dial + spin + 1):
+            if i % 100 == 0:
+                count += 1
+        dial = (dial + spin) % 100
     else:
-        dial = (dial - int(instruction[1:])) % 100
+        for i in range(dial - spin, dial):
+            if i % 100 == 0:
+                count += 1
+        dial = (dial - spin) % 100
     
-    if dial == 0:
-        count += 1
-
 print(count)
