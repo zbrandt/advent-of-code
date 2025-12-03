@@ -1,4 +1,4 @@
-""" Module for Advent of Code Day 1.
+""" Module for Advent of Code Day 3.
     https://adventofcode.com/2025/day/3
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
@@ -18,12 +18,15 @@ def main(fname):
     
     j1 = j2 = 0
     for l in lights:
-        nmx = [0] * len(l)
-        for i in range(12):
-            j1 += max(nmx) * int(i == 2)
-            l, nmx = maxify(l, nmx, i)
+        mxs = [0] * len(l)
+        
+        for i in range(0,2):
+            l, mxs = maxify(l, mxs, i)
+        j1 += max(mxs)
 
-        j2 += max(nmx)
+        for i in range(2,12):
+            l, mxs = maxify(l, mxs, i)
+        j2 += max(mxs)
 
     print (f'Part 1: {j1}')
     print (f'Part 2: {j2}')
