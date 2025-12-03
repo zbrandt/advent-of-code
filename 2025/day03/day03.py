@@ -15,11 +15,11 @@ def maxify(nums, mxs, pos):
 
 def main(fname):
     lights = list(map(lambda x : list(map(int, list(x))), fname.read().split()))
-    
+
     j1 = j2 = 0
     for l in lights:
         mxs = [0] * len(l)
-        
+
         for i in range(0,2):
             l, mxs = maxify(l, mxs, i)
         j1 += max(mxs)
