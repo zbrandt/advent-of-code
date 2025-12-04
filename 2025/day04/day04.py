@@ -7,20 +7,19 @@ import numpy as np
 from scipy.signal import convolve2d
 
 def main(fname):
-    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]], dtype=np.int8)
 
     cgrid = np.genfromtxt(fname, dtype='U1', delimiter=1)
-    ngrid = np.vectorize(lambda x: int(x == '@'))(cgrid)
+    ngrid = (cgrid == '@').astype(np.int8)
     
     p1 = p2 = 0
-    iteration = 0
-    inc = 1
-    while inc > 0:
-        iteration += 1
+    while True:
         neighbor_sums = convolve2d(ngrid, kernel, mode='same')
-        result = np.vectorize(lambda x: int(x < 4))(neighbor_sums) * ngrid
+        result = ((neighbor_sums < 4) & (ngrid == 1)).astype(np.int8)
         ngrid = ngrid - result
-        inc = np.sum(result)
+        inc = result.sum()
+        if inc == 0:
+            break
         if p1 == 0:
             p1 = inc
         p2 += inc
