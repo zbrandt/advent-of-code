@@ -1,5 +1,5 @@
 """ Module for Advent of Code Day 4.
-    https://adventofcode.com/2025/day4
+    https://adventofcode.com/2025/day/4
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
