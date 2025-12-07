@@ -2,6 +2,8 @@
     https://adventofcode.com/2025/day/6
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
+from io import StringIO
+import sys
 import numpy as np
 
 def main(fname):
