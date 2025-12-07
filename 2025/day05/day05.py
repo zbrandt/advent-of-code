@@ -3,8 +3,6 @@
 """
 # pylint: disable=line-too-long, missing-function-docstring, missing-class-docstring
 import sys
-#mport numpy as np
-#from scipy.signal import convolve2d
 
 def main(fname):
     lines = [line.split('-') for line in fname.read().split()]
