@@ -9,9 +9,7 @@ class Device:
     name : str
     inputs : list[str]
     outputs : list[str]
-    ripe : bool
     counts : dict[str, int]
-    deferrals: int
 
     def __init__(self, line):
         n,o = line.split(':')
@@ -22,8 +20,6 @@ class Device:
     def reset(self):
         self.inputs = []
         self.counts = {}
-        self.ripe = False
-        self.deferrals = 0
 
     def __repr__(self):
         return f'{self.name}: {" ".join(self.outputs)}'
@@ -35,7 +31,7 @@ class Reactor:
     devs : dict[str, Device]
     out : Device
     root : Device
-    specials : set[str]
+    specials : frozenset[str]
 
     def __init__(self, fname):
         self.devs = { d.name: d for d in [Device(line) for line in fname.readlines()]}
@@ -53,21 +49,21 @@ class Reactor:
 
     def update_count(self, d : Device) -> None:
         if d == self.root:
-            d.ripe = True
             d.counts = { k:0 for k in self.specials }
             d.counts['none'] = 1
-        elif all (self.devs[i].ripe for i in d.inputs):
-            d.ripe = True
-            counts = {k:sum(self.devs[i].counts[k] for i in d.inputs) for k in self.specials}
+            return
 
-            if d.name == 'dac':
-                counts = {'none':0, 'dac':counts['none'] + counts['dac'], 'fft':0, 'both': counts['both'] + counts['fft'] }
-            elif d.name == 'fft':
-                counts = {'none':0, 'dac':0, 'fft':counts['none'] + counts['fft'], 'both': counts['both'] + counts['dac'] }
+        counts = {k:sum(self.devs[i].counts[k] for i in d.inputs) for k in self.specials}
 
-            d.counts = counts
+        if d.name == 'dac':
+            counts = {'none':0, 'dac':counts['none'] + counts['dac'], 'fft':0, 'both': counts['both'] + counts['fft'] }
+        elif d.name == 'fft':
+            counts = {'none':0, 'dac':0, 'fft':counts['none'] + counts['fft'], 'both': counts['both'] + counts['dac'] }
+
+        d.counts = counts
 
     def make_connects(self) -> None:
+        self.reset()
         deq = deque(([self.root.name]))
         visited : set[str] = set()
         while deq:
@@ -75,37 +71,51 @@ class Reactor:
             if dev.name in visited:
                 continue
             visited.add(dev.name)
-            for out in dev.outputs:
-                if out not in self.devs:
-                    raise ValueError(f"Unknown device referenced: {out} (from {dev.name})")
-                self.devs[out].inputs.append(dev.name)
-                deq.append(out)
+            for child in dev.outputs:
+                if child not in self.devs:
+                    raise ValueError(f"Unknown device referenced: {child} (from {dev.name})")
+                self.devs[child].inputs.append(dev.name)
+                deq.append(child)
 
-    def count_paths(self) -> dict[str, int]:
-        self.out.counts = { k:0 for k in self.specials }
-        self.out.deferrals = 0
-        self.out.ripe = False
-        deq = deque(([self.root.name]))
-        deqset = set([deq[0]])
+    def reachable(self, root_name) -> set[str]:
+        reachable = set()
+        deq = deque(([root_name]))
         while deq:
-            dev : Device = self.devs[deq.popleft()]
-            deqset.remove(dev.name)
-            self.update_count(dev)
-            if dev.ripe:
-                noutputs = len(dev.outputs)
-                if noutputs >= 1:
-                    for out in dev.outputs:
-                        if out not in deqset:
-                            deq.append(out)
-                            deqset.add(out)
-            else:
-                dev.deferrals += 1
-                if dev.deferrals > len(self.devs):
-                    raise RuntimeError(f"Stuck: {dev.name} never became ripe; inputs={dev.inputs}")
-                deq.append(dev.name)
-                deqset.add(dev.name)
-        if not self.out.ripe:
-            raise RuntimeError("Output 'out' was never reached from the root")
+            name = deq.popleft()
+            if name in self.devs and name not in reachable:
+                reachable.add(name)
+                for child in self.devs[name].outputs:
+                    if child in self.devs:
+                        deq.append(child)
+        
+        return reachable
+    
+    def count_paths_kahn(self, root) -> dict[str, int]:
+        reach = self.reachable(root)
+        if 'out' not in reach:
+            raise RuntimeError("Output 'out' is not reachable from the root")
+
+        self.out.counts = { k:0 for k in self.specials }
+ 
+        indeg = {name: len(self.devs[name].inputs) for name in reach}
+        q = deque(([root]))
+
+        processed = 0
+        while q:
+            u = q.popleft()
+            processed += 1
+            self.update_count(self.devs[u])
+                              
+            for v in self.devs[u].outputs:
+                if v not in reach:
+                    continue
+                indeg[v] -= 1
+                if indeg[v] == 0:
+                    q.append(v)
+        
+        if processed != len(reach):
+            raise RuntimeError("Cycle or unresolved dependencies in reachable subgraph")
+        
         return self.out.counts
 
     def __repr__(self):
@@ -113,11 +123,10 @@ class Reactor:
 
 def count_paths (r : Reactor, root : str, match : Callable[[str], bool]) -> int:
     count = 0
-    r.reset()
     r.root = r.devs.get(root)
     if r.root:
         r.make_connects()
-        counts = r.count_paths()
+        counts = r.count_paths_kahn(root)
         count = sum(v for k,v in counts.items() if match(k))
     return count
 
